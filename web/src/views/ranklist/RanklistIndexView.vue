@@ -1,7 +1,5 @@
 <template>
-    <ContentField>
-        
-    </ContentField>
+    <ContentField>RankList</ContentField>
 </template>
 
 <script>

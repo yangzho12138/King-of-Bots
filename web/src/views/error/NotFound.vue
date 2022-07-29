@@ -1,7 +1,5 @@
 <template>
-    <ContentField>
-        
-    </ContentField>
+    <ContentField>404</ContentField>
 </template>
 
 <script>

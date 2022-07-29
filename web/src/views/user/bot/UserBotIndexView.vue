@@ -1,7 +1,5 @@
 <template>
-    <ContentField>
-        
-    </ContentField>
+    <ContentField>MyBot</ContentField>
 </template>
 
 <script>

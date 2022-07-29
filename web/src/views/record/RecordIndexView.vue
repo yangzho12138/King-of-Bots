@@ -1,7 +1,5 @@
 <template>
-    <ContentField>
-        
-    </ContentField>
+    <ContentField>Record</ContentField>
 </template>
 
 <script>
