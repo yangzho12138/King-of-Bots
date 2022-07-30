@@ -1,6 +1,8 @@
 <template>
-    <div ref="parent" class="gamemap">
-        <canvas ref="canvas">
+    <!-- Use the ref attribute to map the label to the corresponding parameter -->
+    <div ref="parent" class="gamemap"> 
+        <!-- tabindex attribute: get the imput of keyboard -->
+        <canvas ref="canvas" tabindex="0">
 
         </canvas>
     </div>
