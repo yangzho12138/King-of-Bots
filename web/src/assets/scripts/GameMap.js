@@ -9,7 +9,7 @@ export class GameMap extends GameObject{
 
         this.ctx = ctx;
         this.parent = parent;
-        this.L = 0; // absolute distance of a grid in the game map
+        this.L = 0; // absolute distance of a grid in the game map, the coordinate (x,y) is relative distance, so must *L
 
         // 13*14 —— the starting points of two players are (1,13) and (12,1) seperately, the head of 2 players will not enter a grid - died at the same time
         this.rows = 13; // the game map is a 13*14 grid board
@@ -151,6 +151,26 @@ export class GameMap extends GameObject{
     next_step(){
         for(const snake of this.snakes)
             snake.next_step();
+    }
+
+    // check whether the snake meet the walls or another snake's body
+    check_valid(cell){
+        for(const wall of this.walls){
+            if(wall.r === cell.r && wall.c === cell.c)
+                return false;
+        }
+
+        for(const snake of this.snakes){
+            let k = snake.cells.length;
+            if(!snake.check_tail_increasing()){ // 当蛇的长度不会改变时，即蛇尾会改变位置时，蛇尾的位置是下一步可以走的
+                k--;
+            }
+            for(let i = 0; i < k; i++){
+                if(snake.cells[i].r === cell.r && snake.cells[i].c === cell.c)
+                    return false;
+            }
+        }
+        return true;
     }
 
     update(){
