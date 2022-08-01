@@ -8,9 +8,11 @@ export default {
         photo: "",
         token: "",
         is_login: false,
+        pulling_info: true, // 在处理信息的过程中——通过对该参数进行判断，决定是否需要放出页面，借此可以消除刷新的过程中会有一瞬间（云端在拉取数据）跳转到登录页面的闪回问题
     },
     getters: {
     },
+    // 同步操作，不需要从云端拉去信息，可以放在mutations中
     mutations: {
         updateUser(state, user){
             state.id = user.id;
@@ -29,8 +31,12 @@ export default {
             state.photo = "";
             state.token = "";
             state.is_login = false;
+        },
+        updatePullingInfo(state, pulling_info){
+            state.pulling_info = pulling_info;
         }
     },
+    // 异步操作，需要从云端拉去信息，只能放在actions中
     actions: {
         login(context, data){
             $.ajax({
@@ -42,6 +48,7 @@ export default {
                 },
                 success(resp) {
                     if(resp.message === "success"){
+                        localStorage.setItem("jwt_token", resp.token); // 将token存储到浏览器的内存中
                         context.commit("updateToken", resp.token); // 调用mutations中的updateToken函数
                         data.success(resp);
                     }else{
@@ -78,6 +85,7 @@ export default {
             })
         },
         logout(context){
+            localStorage.removeItem("jwt_token"); // 登出时移除token
             context.commit("logout");
         }
     },

@@ -9,13 +9,13 @@
             <div class="collapse navbar-collapse" id="navbarText">
             <ul class="navbar-nav me-auto mb-2 mb-lg-0">
                 <li class="nav-item">
-                <router-link :class="route_name == 'pk_index' ? 'nav-link active' : 'nav-link'" aria-current="page" :to="{name: 'pk_index'}">Fight</router-link>
+                <router-link :class="route_name === 'pk_index' ? 'nav-link active' : 'nav-link'" aria-current="page" :to="{name: 'pk_index'}">Fight</router-link>
                 </li>
                 <li class="nav-item">
-                <router-link :class="route_name == 'record_index' ? 'nav-link active' : 'nav-link'" :to="{name: 'record_index'}">Match List</router-link>
+                <router-link :class="route_name === 'record_index' ? 'nav-link active' : 'nav-link'" :to="{name: 'record_index'}">Match List</router-link>
                 </li>
                 <li class="nav-item">
-                <router-link :class="route_name == 'ranklist_index' ? 'nav-link active' : 'nav-link'" :to="{name: 'ranklist_index'}">Ranking</router-link>
+                <router-link :class="route_name === 'ranklist_index' ? 'nav-link active' : 'nav-link'" :to="{name: 'ranklist_index'}">Ranking</router-link>
                 </li>
             </ul>
             <ul class="navbar-nav" v-if="$store.state.user.is_login">
@@ -31,7 +31,7 @@
                     </ul>
                 </div>
             </ul>
-            <ul class="navbar-nav" v-else>
+            <ul class="navbar-nav" v-else-if="!$store.state.user.pulling_info">
                 <li class="nav-item">
                     <router-link class="nav-link" role="button" :to="{name: 'user_account_login'}">
                         Login

@@ -1,7 +1,7 @@
 <template>
-    <ContentField>
+    <ContentField v-if="!$store.state.user.pulling_info">
         <div class="row justify-content-md-center">
-            <div class="col-3">
+            <div class="col-6">
                 <!-- submit按钮触发login函数 -->
                 <form @submit.prevent="login"> 
                     <div class="mb-3">
@@ -37,6 +37,27 @@ export default{
         let username = ref('');
         let password = ref('');
         let error_message = ref('');
+
+        // 刷新之后-进入未登陆状态，未授权的页面（router的index.js中）会默认跳转到登录页面
+        // 进入登录页面前检查本地是否有token，使其保有登陆状态
+        const jwt_token = localStorage.getItem("jwt_token");
+        if(jwt_token){
+            store.commit("updateToken", jwt_token); // 调用store的mutation中的函数
+            // 验证token
+            store.dispatch("getinfo",{
+                success(){
+                    router.push({name: "home"})
+                    store.commit("updatePullingInfo",false);
+                },
+                error(){
+                    // token过期
+                    store.commit("updatePullingInfo",false);
+                },
+            })
+        }else{
+            store.commit("updatePullingInfo",false);
+        }
+
 
         const login = () => {
             error_message.value = "";
