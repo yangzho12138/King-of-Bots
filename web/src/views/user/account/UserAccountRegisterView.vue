@@ -1,11 +1,11 @@
 <template>
-    <ContentField>
+    <ContentField v-if="!$store.state.user.register_info">
         <div class="row justify-content-md-center">
             <div class="col-6">
                 <form @submit.prevent="register"> 
                     <div class="mb-3">
                         <label for="username" class="form-label">Username</label>
-                        <input v-model="username" type="text" class="form-control" id="username" placeholder="Please enter the username">
+                        <input v-model="username" type="email" class="form-control" id="username" placeholder="Please enter the username">
                     </div>
                     <div class="mb-3">
                         <label for="password" class="form-label">Password</label>
@@ -21,13 +21,21 @@
             </div>
         </div>
     </ContentField>
+    <ContentField v-if="$store.state.user.register_info"> 
+        <div>
+            Register Success! Enjoy your time!
+        </div>
+        <router-link role="button" :to="{name: 'user_account_login'}">
+            Click here to login
+        </router-link>
+    </ContentField>
 </template>
 
 <script>
 import ContentField from "@/components/ContentField"
 import { ref } from 'vue'
 import $ from "jquery"
-import router from "@/router/index"
+import { useStore } from "vuex"
 
 export default{
     components: {
@@ -40,6 +48,8 @@ export default{
         let confirmedPassword = ref("");
         let error_message = ref("");
 
+        const store = useStore();
+
         // 注册不会修改state的值，因此不用像login那样把ajax的函数放到store里去
         const register = () =>{
             $.ajax({
@@ -51,8 +61,9 @@ export default{
                     confirmedPassword: confirmedPassword.value,
                 },
                 success(resp){
-                    if(resp.message === "success")
-                        router.push({name: "user_account_login"});
+                    if(resp.message === "success"){
+                        store.commit("updateRegisterInfo",true);
+                    }
                     else
                         error_message.value = resp.message;
                 },
@@ -69,7 +80,6 @@ export default{
             error_message,
             register,
         }
-
 
     }
 }

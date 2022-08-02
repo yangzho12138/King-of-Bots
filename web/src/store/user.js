@@ -9,6 +9,7 @@ export default {
         token: "",
         is_login: false,
         pulling_info: true, // 在处理信息的过程中——通过对该参数进行判断，决定是否需要放出页面，借此可以消除刷新的过程中会有一瞬间（云端在拉取数据）跳转到登录页面的闪回问题
+        register_info: false, // 注册成功的提示信息
     },
     getters: {
     },
@@ -34,6 +35,9 @@ export default {
         },
         updatePullingInfo(state, pulling_info){
             state.pulling_info = pulling_info;
+        },
+        updateRegisterInfo(state, register_info){
+            state.register_info = register_info;
         }
     },
     // 异步操作，需要从云端拉去信息，只能放在actions中

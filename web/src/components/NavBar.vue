@@ -38,7 +38,7 @@
                     </router-link>
                 </li>
                 <li class="nav-item">
-                    <router-link href="#" class="nav-link" role="button" :to="{name: 'user_account_register'}">
+                    <router-link class="nav-link" role="button" :to="{name: 'user_account_register'}">
                         Register
                     </router-link>
                 </li>
