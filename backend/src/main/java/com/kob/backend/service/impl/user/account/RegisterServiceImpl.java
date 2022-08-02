@@ -4,14 +4,22 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.kob.backend.mapper.UserMapper;
 import com.kob.backend.pojo.User;
 import com.kob.backend.service.user.account.RegisterService;
+import com.kob.backend.utils.RedisUtil;
+import com.kob.backend.utils.VerificationCodeUtil;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.core.parameters.P;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.mail.SimpleMailMessage;
+import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
+@Slf4j
 @Service
 public class RegisterServiceImpl implements RegisterService {
     @Autowired
@@ -20,8 +28,17 @@ public class RegisterServiceImpl implements RegisterService {
     @Autowired
     private PasswordEncoder passwordEncoder; // the bean in SecurityConfig
 
+    @Autowired
+    private RedisUtil redisUtil;
+
+    @Autowired
+    private JavaMailSender javaMailSender;
+    @Value("${spring.mail.username}")
+    private String sendMailer;
+
+
     @Override
-    public Map<String, String> register(String username, String password, String confirmedPassword) {
+    public Map<String, String> register(String username, String password, String confirmedPassword, String verificationCode) {
         Map<String, String> map = new HashMap<>();
         if(username == null){
             map.put("message","the username can not be null");
@@ -58,6 +75,16 @@ public class RegisterServiceImpl implements RegisterService {
             return map;
         }
 
+        // check verification code
+        String code = redisUtil.get(username);
+        if(code.equals(verificationCode) == false){
+            log.info(code + " "+ verificationCode);
+            map.put("message","the verification code is wrong");
+            return map;
+        }
+
+        redisUtil.delete(username);
+
         QueryWrapper<User> queryWrapper = new QueryWrapper<>();
         queryWrapper.eq("username",username);
         User user_name_exist = userMapper.selectOne(queryWrapper);
@@ -73,6 +100,33 @@ public class RegisterServiceImpl implements RegisterService {
         userMapper.insert(user);
 
         map.put("message","success");
+        return map;
+    }
+
+    @Override
+    public Map<String, String> getVC(String username) {
+        // check username
+        
+
+        String VC = VerificationCodeUtil.CAPTCHA(4);
+        redisUtil.setForTimeMS(username, VC, 1000*60*5); // 5min
+
+        Map<String, String> map = new HashMap<>();
+        // send email
+        SimpleMailMessage message = new SimpleMailMessage();
+        try {
+            message.setFrom(sendMailer);
+            message.setTo(username);
+            message.setSubject("Verification Code Of King of Bots");
+            message.setText("Your verification code is: " + VC +", please use it within 5 mins.");
+            message.setSentDate(new Date());
+            javaMailSender.send(message);
+            map.put("message", "success");
+        } catch (Exception e) {
+            e.printStackTrace();
+            map.put("message","failed");
+        }
+
         return map;
     }
 }
