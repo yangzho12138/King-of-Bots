@@ -18,7 +18,7 @@
                         <label for="confirmedPassword" class="form-label">Confirmed Password</label>
                         <input v-model="confirmedPassword" type="password" class="form-control" id="confirmedPassword" placeholder="Please enter the password again">
                     </div>
-                    <form class="row g-6" @submit.prevent="getVC">
+                    <form class="row g-6">
                         <div class="col-9 mb-3">
                             <label for="verificationCode" class="form-label">Verification Code</label>
                             <input v-model="verificationCode" type="text" class="form-control" id="verificationCode" placeholder="Please enter the verification code">
@@ -39,7 +39,7 @@
         <div>
             Register Success! Enjoy your time!
         </div>
-        <router-link role="button" :to="{name: 'user_account_login'}">
+        <router-link @click="restoreRegisterPage" role="button" :to="{name: 'user_account_login'}">
             Click here to login
         </router-link>
     </ContentField>
@@ -106,6 +106,12 @@ export default{
                 },
                 success(resp){
                     console.log(resp);
+                    if(resp.message !== "success")
+                        error_message.value = resp.message;
+                },
+                error(resp){
+                    console.log(resp);
+                    error_message.value = resp.message;
                 }
             })
         }
@@ -115,9 +121,10 @@ export default{
             var btn = document.querySelector(".send"); // 写在函数外面无法监听.send类
             var time = TIME_COUNT;
             btn.addEventListener("click",function(){
+                getVC();
                 btn.disabled = true;
                 var timer = setInterval(function(){
-                    if(time == 0){
+                    if(time === 0){
                         clearInterval(timer);
                         btn.disabled = false;
                         btn.innerHTML = "Send Code";
@@ -129,6 +136,10 @@ export default{
             });
         }
 
+        const restoreRegisterPage = () => {
+            store.commit("updateRegisterInfo",false);
+        }
+
         return{
             username,
             password,
@@ -138,6 +149,7 @@ export default{
             register,
             getVC,
             getCodeAgain,
+            restoreRegisterPage,
         }
 
     },

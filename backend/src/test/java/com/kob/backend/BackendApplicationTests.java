@@ -1,16 +1,20 @@
 package com.kob.backend;
 
+import com.kob.backend.utils.RedisUtil;
 import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
 @SpringBootTest
 class BackendApplicationTests {
 
+    @Autowired
+    RedisUtil redisUtil;
+
     @Test
     void contextLoads() {
-        BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
-        System.out.println(passwordEncoder.encode("123"));
+        System.out.println(redisUtil.get("123"));
     }
 
 }

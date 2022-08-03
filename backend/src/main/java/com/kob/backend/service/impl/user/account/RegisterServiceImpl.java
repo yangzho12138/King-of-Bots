@@ -78,7 +78,6 @@ public class RegisterServiceImpl implements RegisterService {
         // check verification code
         String code = redisUtil.get(username);
         if(code.equals(verificationCode) == false){
-            log.info(code + " "+ verificationCode);
             map.put("message","the verification code is wrong");
             return map;
         }
@@ -105,26 +104,35 @@ public class RegisterServiceImpl implements RegisterService {
 
     @Override
     public Map<String, String> getVC(String username) {
+        Map<String, String> map = new HashMap<>();
+
         // check username
-        
+        if(username.contains("@") == false){
+            log.info(username);
+            map.put("message", "please check your email address");
+            return map;
+        }
+
 
         String VC = VerificationCodeUtil.CAPTCHA(4);
+        if(redisUtil.get(username) != null){
+            redisUtil.delete(username);
+        }
         redisUtil.setForTimeMS(username, VC, 1000*60*5); // 5min
 
-        Map<String, String> map = new HashMap<>();
         // send email
         SimpleMailMessage message = new SimpleMailMessage();
         try {
             message.setFrom(sendMailer);
             message.setTo(username);
-            message.setSubject("Verification Code Of King of Bots");
+            message.setSubject("Verification Code of 'King of Bots'");
             message.setText("Your verification code is: " + VC +", please use it within 5 mins.");
             message.setSentDate(new Date());
             javaMailSender.send(message);
             map.put("message", "success");
         } catch (Exception e) {
             e.printStackTrace();
-            map.put("message","failed");
+            map.put("message","the email can not be sent to the given address");
         }
 
         return map;
