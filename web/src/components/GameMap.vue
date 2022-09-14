@@ -11,15 +11,17 @@
 <script>
 import { GameMap } from "@/assets/scripts/GameMap"
 import { ref, onMounted } from "vue"
+import {useStore} from 'vuex'
 
 export default{
     setup(){
         let parent = ref(null); // get the parent tag of canvas tag
         let canvas = ref(null); // get the canvas tag
+        const store = useStore();
 
         // after all components loaded, create a GameMap Object
         onMounted(() =>{
-            new GameMap(canvas.value.getContext('2d'), parent.value)
+            new GameMap(canvas.value.getContext('2d'), parent.value, store)
         })
 
         return {

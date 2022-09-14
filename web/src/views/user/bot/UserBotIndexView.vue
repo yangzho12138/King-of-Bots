@@ -5,6 +5,13 @@
                 <div class="card" style="margin-top: 20px">
                     <div class="card-body">
                         <img :src="$store.state.user.photo" alt="" style="width: 100%">
+                        <button type="button" class="change-pic btn btn-outline-secondary">Change Pic</button>
+                        <form class="row g-3">
+                            <div class="col-auto" style="width: 100%; margin-top: 40px">
+                                <label for="nickname" class="visually-hidden"></label>
+                                <input type="text" class="form-control" id="nickname" placeholder="typo your kickname here">
+                            </div>
+                        </form>
                     </div>
                 </div>
             </div>
@@ -257,5 +264,13 @@ export default{
 </script>
 
 <style scoped>
-    
+    .change-pic{
+        position: relative;
+        top: -1vh;
+        left: 25%;
+    }
+
+    .personal-info{
+        margin-top: 1vh;
+    }
 </style>
