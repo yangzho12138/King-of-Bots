@@ -17,7 +17,7 @@ export class Snake extends GameObject{
         this.direction = -1; // Direction command received by snake 0-up, 1-right, 2-down, 3-left
         this.status = "idle"; // idle, move, die
 
-        // offser of every step
+        // offset of every step
         this.dr = [-1, 0, 1, 0];
         this.dc = [0, 1, 0, -1];
 
@@ -66,6 +66,8 @@ export class Snake extends GameObject{
 
     next_step(){
         const d = this.direction;
+        if(d === -1)
+            return false;
         this.next_cell = new Cell(this.cells[0].r + this.dr[d], this.cells[0].c + this.dc[d]);
         this.eye_direction = d;
         this.direction = -1;
@@ -88,6 +90,7 @@ export class Snake extends GameObject{
 
         const dx = this.next_cell.x - this.cells[0].x;
         const dy = this.next_cell.y - this.cells[0].y;
+        console.log(this.next_cell.x, this.cells[0].x, this.next_cell.y, this.cells[0].y);
         const distance = Math.sqrt(dx * dx + dy * dy);
 
         if(distance < this.eps){ // arrive the target point

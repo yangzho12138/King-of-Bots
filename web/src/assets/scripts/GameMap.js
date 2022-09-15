@@ -43,22 +43,29 @@ export class GameMap extends GameObject{
         // user0: wdsa; user1: direction key
         const [snake0 ,snake1] = this.snakes;
         this.ctx.canvas.addEventListener("keydown", e => {
-            if(e.key === 'w')
-                snake0.set_direction(0);
-            else if(e.key === 'd')
-                snake0.set_direction(1);
-            else if(e.key === 's')
-                snake0.set_direction(2);
-            else if(e.key === 'a')
-                snake0.set_direction(3);
-            else if(e.key === 'ArrowUp')
-                snake1.set_direction(0);
-            else if(e.key === 'ArrowRight')
-                snake1.set_direction(1);
-            else if(e.key === 'ArrowDown')
-                snake1.set_direction(2);
-            else if(e.key === 'ArrowLeft')
-                snake1.set_direction(3);
+            if(snake0.status !== "die" && snake1.status !== "die"){
+                console.log(e.key);
+                if(snake0.status !== "move"){
+                    if(e.key === 'w')
+                        snake0.set_direction(0);
+                    else if(e.key === 'd')
+                        snake0.set_direction(1);
+                    else if(e.key === 's')
+                        snake0.set_direction(2);
+                    else if(e.key === 'a')
+                        snake0.set_direction(3);
+                }
+                if(snake1.status !== "move"){
+                    if(e.key === 'ArrowUp')
+                        snake1.set_direction(0);
+                    else if(e.key === 'ArrowRight')
+                        snake1.set_direction(1);
+                    else if(e.key === 'ArrowDown')
+                        snake1.set_direction(2);
+                    else if(e.key === 'ArrowLeft')
+                        snake1.set_direction(3);
+                }
+            }
         })
     }
 
@@ -75,15 +82,15 @@ export class GameMap extends GameObject{
     }
 
     // Judge whether both snakes are ready for the next round
-    check_ready(){
-        for(const snake of this.snakes){
-            if(snake.status !== "idle")
-                return false;
-            if(snake.direction === -1)
-                return false;
-        }
-        return true;
-    }
+    // check_ready(){
+    //     for(const snake of this.snakes){
+    //         if(snake.status !== "idle")
+    //             return false;
+    //         if(snake.direction === -1)
+    //             return false;
+    //     }
+    //     return true;
+    // }
 
     // 2 snakes all enter the next round
     next_step(){
@@ -114,9 +121,9 @@ export class GameMap extends GameObject{
     update(){
         // update the canvas size(the game map size) every frame
         this.update_size();
-        if(this.check_ready()){
-            this.next_step();
-        }
+        //if(this.check_ready()){
+        this.next_step();
+        //}
         this.render();
     }
 
