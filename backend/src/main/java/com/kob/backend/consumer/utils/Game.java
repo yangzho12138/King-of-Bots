@@ -1,20 +1,36 @@
 package com.kob.backend.consumer.utils;
 
+import java.util.ArrayList;
 import java.util.Random;
+import java.util.concurrent.locks.ReentrantLock;
 
 // 地图同步逻辑——地图需要在后端生成后发送给匹配的两个前端
-public class Game {
-    final private Integer rows;
-    final private Integer cols;
-    final private Integer inner_walls_count;
-    final private int[][] g; // 1 - wall, 0 - road
-    final private static int[] dx = {-1, 0, 1, 0}, dy = {0, 1, 0, -1};
+public class Game extends Thread{
+    private final Integer rows;
+    private final Integer cols;
+    private final Integer inner_walls_count;
+    private final int[][] g; // 1 - wall, 0 - road
+    private final static int[] dx = {-1, 0, 1, 0}, dy = {0, 1, 0, -1};
+    private final Player playerA, playerB;
+    private Integer nextStepA = null;
+    private Integer nextStepB = null;
+    private ReentrantLock lock = new ReentrantLock();
 
-    public Game(Integer rows, Integer cols, Integer inner_walls_count){
+    public Game(Integer rows, Integer cols, Integer inner_walls_count, Integer idA, Integer idB){
         this.rows = rows;
         this.cols = cols;
         this.inner_walls_count = inner_walls_count;
         this.g = new int[rows][cols];
+        this.playerA = new Player(idA, this.rows - 2, 1, new ArrayList<>());
+        this.playerB = new Player(idB, 1, this.cols - 2, new ArrayList<>());
+    }
+
+    public Player getPlayerA(){
+        return this.playerA;
+    }
+
+    public Player getPlayerB(){
+        return this.playerB;
     }
 
     public int[][] getG(){
@@ -75,5 +91,43 @@ public class Game {
             if(draw())
                 break;
         }
+    }
+
+    // Thread receiving message from Clients will modify the nextStep of A and B
+    public void setNextStepA(Integer nextStepA){
+        lock.lock();
+        try {
+            this.nextStepA = nextStepA;
+        }finally {
+            lock.unlock();
+        }
+    }
+
+    public void setNextStepB(Integer nextStepB){
+        lock.lock();
+        try {
+            this.nextStepB = nextStepB;
+        }finally {
+            lock.unlock();
+        }
+    }
+
+    // waiting for the next step operation
+    // Thread judging the movement will read the nextStep of A and B
+    // Two Threads will read/write the same variable
+    private boolean nextStep(){
+        lock.lock();
+        try{
+            if(nextStepA != null || nextStepB != null) // get any input of any players
+                return true;
+        }finally {
+            lock.unlock();
+        }
+        return false;
+    }
+
+    @Override
+    public void run() {
+
     }
 }
