@@ -79,9 +79,10 @@ export class Snake extends GameObject{
         for(let i = k; i > 0; i --){
             this.cells[i] = JSON.parse(JSON.stringify(this.cells[i-1])); // Deep copy, create a new object
         }
-
-        if(!this.gamemap.check_valid(this.next_cell)) // the operation result in the death of snake
-            this.status = "die";
+        
+        // 交由后端判断蛇是否死亡
+        // if(!this.gamemap.check_valid(this.next_cell)) // the operation result in the death of snake
+        //     this.status = "die";
 
     }
 
@@ -90,7 +91,7 @@ export class Snake extends GameObject{
 
         const dx = this.next_cell.x - this.cells[0].x;
         const dy = this.next_cell.y - this.cells[0].y;
-        console.log(this.next_cell.x, this.cells[0].x, this.next_cell.y, this.cells[0].y);
+        //console.log(this.next_cell.x, this.cells[0].x, this.next_cell.y, this.cells[0].y);
         const distance = Math.sqrt(dx * dx + dy * dy);
 
         if(distance < this.eps){ // arrive the target point

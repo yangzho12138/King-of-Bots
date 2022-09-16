@@ -3,6 +3,7 @@ package com.kob.backend.consumer;
 import com.alibaba.fastjson.JSONObject;
 import com.kob.backend.consumer.utils.Game;
 import com.kob.backend.consumer.utils.JwtAuthentication;
+import com.kob.backend.mapper.RecordMapper;
 import com.kob.backend.mapper.UserMapper;
 import com.kob.backend.pojo.User;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,6 +13,7 @@ import javax.websocket.*;
 import javax.websocket.server.PathParam;
 import javax.websocket.server.ServerEndpoint;
 import java.io.IOException;
+
 import java.util.Iterator;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArraySet;
@@ -22,7 +24,7 @@ import java.util.concurrent.CopyOnWriteArraySet;
 public class WebSocketServer {
 
     // ConcurrentHashMap 线程安全哈希表，对所有实例可见
-    private static ConcurrentHashMap<Integer, WebSocketServer> users = new ConcurrentHashMap<>();
+    public static ConcurrentHashMap<Integer, WebSocketServer> users = new ConcurrentHashMap<>();
     // 线程安全--匹配池
     private static CopyOnWriteArraySet<User> matchPool = new CopyOnWriteArraySet<>();
     private User user; // the user who construct the connection
@@ -30,13 +32,18 @@ public class WebSocketServer {
 
     // non-singleton, cannot use Autowired directly (在同一时间不只有一个实例，多个连接--多个实例）
     private static UserMapper userMapper;
+    public static RecordMapper recordMapper;
+
     private Game game = null;
 
     @Autowired
     public void setUserMapper(UserMapper userMapper){
         WebSocketServer.userMapper = userMapper;
     }
-
+    @Autowired
+    public void setRecordMapper(RecordMapper recordMapper){
+        WebSocketServer.recordMapper = recordMapper;
+    }
 
     @OnOpen
     public void onOpen(Session session, @PathParam("token") String token) throws IOException {
@@ -79,7 +86,7 @@ public class WebSocketServer {
             // Game Map Info
             Game game = new Game(13, 14, 20, a.getId(), b.getId());
             game.createMap();
-            game.start();
+            game.start(); // 一局游戏是一个线程
 
             users.get(a.getId()).game = game;
             users.get(b.getId()).game = game;
@@ -116,6 +123,14 @@ public class WebSocketServer {
         matchPool.remove(this.user);
     }
 
+    private void move(int direction){
+        if(game.getPlayerA().getId().equals(user.getId())){
+            game.setNextStepA(direction);
+        }else if(game.getPlayerB().getId().equals(user.getId())){
+            game.setNextStepB(direction);
+        }
+    }
+
     @OnMessage
     public void onMessage(String message, Session session) {
         // 从Client接收消息
@@ -126,6 +141,8 @@ public class WebSocketServer {
             startMatching();
         }else if("stop-matching".equals(event)){
             stopMatching();
+        }else if("move".equals(event)){
+            move(data.getInteger("direction"));
         }
     }
 
