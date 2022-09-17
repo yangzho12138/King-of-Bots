@@ -9,6 +9,7 @@
     <modules>
         <module>matchingsystem</module>
         <module>backend</module>
+        <module>bootrunningsystem</module>
     </modules>
     <name>backendcloud</name>
     <description>Demo project for Spring Boot</description>

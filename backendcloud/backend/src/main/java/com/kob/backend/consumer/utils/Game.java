@@ -2,7 +2,10 @@ package com.kob.backend.consumer.utils;
 
 import com.alibaba.fastjson.JSONObject;
 import com.kob.backend.consumer.WebSocketServer;
+import com.kob.backend.pojo.Bot;
 import com.kob.backend.pojo.Record;
+import org.springframework.util.LinkedMultiValueMap;
+import org.springframework.util.MultiValueMap;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -29,13 +32,29 @@ public class Game extends Thread{
     private long lastOpTimeB = 0;
     private double gapTime = 0.5; // 0.5s
 
-    public Game(Integer rows, Integer cols, Integer inner_walls_count, Integer idA, Integer idB){
+    private final static String addBotUrl = "http://127.0.0.1:3002/bot/add/";
+
+    public Game(Integer rows, Integer cols, Integer inner_walls_count, Integer idA, Integer idB, Bot botA, Bot botB){
         this.rows = rows;
         this.cols = cols;
         this.inner_walls_count = inner_walls_count;
         this.g = new int[rows][cols];
-        this.playerA = new Player(idA, this.rows - 2, 1, new ArrayList<>());
-        this.playerB = new Player(idB, 1, this.cols - 2, new ArrayList<>());
+
+        Integer botIdA = -1, botIdB = -1;
+        String botCodeA = "", botCodeB = "";
+
+        if(botA != null){
+            botIdA = botA.getId();
+            botCodeA = botA.getContent();
+        }
+
+        if(botB != null){
+            botIdB = botB.getId();
+            botCodeB = botB.getContent();
+        }
+
+        this.playerA = new Player(idA, botIdA, botCodeA, this.rows - 2, 1, new ArrayList<>());
+        this.playerB = new Player(idB, botIdB, botCodeB, 1, this.cols - 2, new ArrayList<>());
     }
 
     public Player getPlayerA(){
@@ -133,10 +152,36 @@ public class Game extends Thread{
         }
     }
 
+    // get the game situation in live -> String
+    private String getInput(Player player){
+        Player me, you;
+        if(playerA.getId().equals(player.getId())){
+            me = playerA;
+            you = playerB;
+        }else{
+            me = playerB;
+            you = playerA;
+        }
+        // compress state --> map#我的起始坐标x#我的起始坐标y#(我的操作序列)#你的起始坐标x#你的起始坐标y#(你的操作序列) 因为操作序列可能为空，所以用()括起来
+        return getMapString() + "#" + me.getSx() + "#" + me.getSy() + "#(" + me.getStepsString() +")#" + you.getSx() + "#" + you.getSy() + "#(" + me.getStepsString() +")";
+    }
+
+    private void sendBotCode(Player player){
+        if(player.getBotId() == -1) // manual
+            return ;
+        MultiValueMap<String, String> data = new LinkedMultiValueMap<>();
+        data.add("user_id", player.getId().toString());
+        data.add("bot_code", player.getBotCode());
+        data.add("input",getInput(player));
+        WebSocketServer.restTemplate.postForObject(addBotUrl, data, String.class);
+    }
+
     // waiting for the next step operation
     // Thread judging the movement will read the nextStep of A and B
     // Two Threads will read/write the same variable
     private void nextStep(){
+        sendBotCode(playerA);
+        sendBotCode(playerB);
         for(int i = 0; i < 500; i++) { // get nothing in 10s --> game end
             try {
                 Thread.sleep(200);

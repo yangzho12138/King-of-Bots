@@ -17,7 +17,8 @@ public class MatchingController {
         System.out.println("add player");
         Integer userId = Integer.parseInt(data.getFirst("user_id"));
         Integer rating = Integer.parseInt(data.getFirst("rating"));
-        return matchingService.addPlayer(userId, rating);
+        Integer botId = Integer.parseInt(data.getFirst("bot_id"));
+        return matchingService.addPlayer(userId, rating, botId);
     }
 
     @PostMapping("/player/remove/")

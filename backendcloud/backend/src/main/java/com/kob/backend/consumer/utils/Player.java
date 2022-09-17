@@ -13,6 +13,8 @@ import java.util.List;
 @NoArgsConstructor
 public class Player {
     private Integer id;
+    private Integer botId; // -1 manual or AI
+    private String botCode;
     private Integer sx; // source
     private Integer sy;
     private List<Integer> steps; // 每一步的方向
