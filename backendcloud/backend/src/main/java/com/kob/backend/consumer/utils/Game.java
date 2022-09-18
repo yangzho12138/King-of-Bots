@@ -307,13 +307,13 @@ public class Game extends Thread{
         for(int i = 0; i < 1000; i++){ // ensure the game will end within 1000 loops —— avoid endless loop
             nextStep(); // update the move
             if(nextStepA != null || nextStepB != null){
-                judge();
                 if(status.equals("playing")){
                     sendMove();
                 }else{
                     sendResult();
                     break;
                 }
+                judge();
             }else{ // A or B not move -- game over
                 status = "finished";
                 lock.lock();

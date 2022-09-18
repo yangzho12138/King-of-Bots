@@ -27,6 +27,8 @@ export default{
         const store = useStore();
         // 与后端@ServerEndpoint注解中的链接相对应
         const socketUrl = `ws://127.0.0.1:3000/websocket/${store.state.user.token}`; // websocket has no post method body -- put token in the url
+        
+        store.commit("updateLoser", "none");
 
         let socket = null;
         // 组件（当前界面）被加载时执行
@@ -58,11 +60,11 @@ export default{
                     const[snake0, snake1] = game.snakes;
                     //console.log(snake0.status);
                     if(data.a_direction >= 0 && snake0.status !== "die"){ 
-                        //console.log(data, snake0.status);
+                        console.log(data, snake0.status);
                         snake0.set_direction(data.a_direction);
                     }
                     if(data.b_direction >= 0 && snake1.status !== "die"){
-                        //console.log(data, snake1.status);
+                        console.log(data, snake1.status);
                         snake1.set_direction(data.b_direction);
                     }
                 }else if(data.event === "result"){
