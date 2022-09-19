@@ -22,6 +22,7 @@ export default{
         // after all components loaded, create a GameMap Object
         onMounted(() =>{
             store.commit("updateGameObject",new GameMap(canvas.value.getContext('2d'), parent.value, store))
+            //console.log(store.state.pk.gameObject);
         })
 
         return {

@@ -4,6 +4,7 @@ import com.alibaba.fastjson.JSONObject;
 import com.kob.backend.consumer.WebSocketServer;
 import com.kob.backend.pojo.Bot;
 import com.kob.backend.pojo.Record;
+import com.kob.backend.pojo.User;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 
@@ -207,7 +208,7 @@ public class Game extends Thread{
         if(WebSocketServer.users.get(playerA.getId()) != null)
             WebSocketServer.users.get(playerA.getId()).sendMessage(message);
         if(WebSocketServer.users.get(playerB.getId()) != null)
-        WebSocketServer.users.get(playerB.getId()).sendMessage(message);
+            WebSocketServer.users.get(playerB.getId()).sendMessage(message);
     }
 
     private void sendMove(){
@@ -217,6 +218,7 @@ public class Game extends Thread{
             resp.put("event","move");
             resp.put("a_direction", nextStepA);
             resp.put("b_direction", nextStepB);
+            System.out.println(resp);
             sendAllMessage(resp.toJSONString());
             nextStepA = nextStepB =  null;
         }finally {
@@ -281,8 +283,30 @@ public class Game extends Thread{
         return res.toString();
     }
 
+    private void updateUserRating(Player player, Integer rating){
+        User user = WebSocketServer.userMapper.selectById(player.getId());
+        user.setRating(rating);
+        WebSocketServer.userMapper.updateById(user);
+    }
 
     private void saveToDatabase(){
+        Integer ratingA = WebSocketServer.userMapper.selectById(playerA.getId()).getRating();
+        Integer ratingB = WebSocketServer.userMapper.selectById(playerB.getId()).getRating();
+
+        if("A".equals(loser)){
+            ratingA = Math.max(0 ,ratingA - 50);
+            ratingB += 50;
+        }else if("B".equals(loser)){
+            ratingA += 50;
+            ratingB = Math.max(0 ,ratingB - 50);
+        }else{
+            ratingA = Math.max(0 ,ratingA - 20);
+            ratingB = Math.max(0 ,ratingB - 20);
+        }
+
+        updateUserRating(playerA, ratingA);
+        updateUserRating(playerB, ratingB);
+
         Record record = new Record(
                 null,
                 playerA.getId(),
@@ -307,13 +331,14 @@ public class Game extends Thread{
         for(int i = 0; i < 1000; i++){ // ensure the game will end within 1000 loops —— avoid endless loop
             nextStep(); // update the move
             if(nextStepA != null || nextStepB != null){
+                judge();
                 if(status.equals("playing")){
                     sendMove();
                 }else{
+                    sendMove();
                     sendResult();
                     break;
                 }
-                judge();
             }else{ // A or B not move -- game over
                 status = "finished";
                 lock.lock();

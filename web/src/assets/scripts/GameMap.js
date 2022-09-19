@@ -38,26 +38,54 @@ export class GameMap extends GameObject{
     }
 
     add_listening_events(){
-        this.ctx.canvas.focus();
+        if(this.store.state.record.is_record){ // video
+            let k = 0;
+            const [snake0, snake1] = this.snakes;
+            const a_steps = this.store.state.record.a_steps;
+            const b_steps = this.store.state.record.b_steps;
+            const loser = this.store.state.record.record_loser;
+            //console.log(a_steps, b_steps);
+            const interval_id = setInterval(() => {
+                if(k >= a_steps.length - 1 && k >= b_steps.length - 1){
+                    if(loser === "all" || loser === "A")
+                        snake0.status = "die";
+                    if(loser === "all" || loser === "B")
+                        snake1.status = "die";
+                    clearInterval(interval_id);
+                }else{
+                    if(k < a_steps.length - 1){
+                        snake0.set_direction(parseInt(a_steps[k]));
+                    }
+                    if(k < b_steps.length - 1){
+                        snake1.set_direction(parseInt(b_steps[k]));
+                    }
+                }
+                k++;
+            }, 500) // 每500ms播放一步
+        }else{ // game
+            this.ctx.canvas.focus();
 
-        // user0: wdsa; user1: direction key
-        this.ctx.canvas.addEventListener("keydown", e => {
-                let d = -1;
-                if(e.key === 'w')
-                    d = 0;
-                else if(e.key === 'd')
-                    d = 1;
-                else if(e.key === 's')
-                    d = 2;
-                else if(e.key === 'a')
-                    d = 3;
-            if(d >= 0){
-                this.store.state.pk.socket.send(JSON.stringify({
-                    event: "move",
-                    direction: d,
-                }))
-            }
-        })
+            // user0: wdsa; user1: direction key
+            this.ctx.canvas.addEventListener("keydown", e => {
+                    console.log(e.key);
+                    let d = -1;
+                    if(e.key === 'w')
+                        d = 0;
+                    else if(e.key === 'd')
+                        d = 1;
+                    else if(e.key === 's')
+                        d = 2;
+                    else if(e.key === 'a')
+                        d = 3;
+                if(d >= 0){
+                    this.store.state.pk.socket.send(JSON.stringify({
+                        event: "move",
+                        direction: d,
+                    }))
+                }
+            })
+        }
+
     }
 
     start(){

@@ -14,7 +14,7 @@ export default ({
       b_id: 0,
       b_sx: 0,
       b_sy: 0,
-      gameObject: null, // ganeMap
+      gameObject: null, // gameMap
       loser: "none",
   },
   getters: {

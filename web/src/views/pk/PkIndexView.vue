@@ -29,10 +29,12 @@ export default{
         const socketUrl = `ws://127.0.0.1:3000/websocket/${store.state.user.token}`; // websocket has no post method body -- put token in the url
         
         store.commit("updateLoser", "none");
+        store.commit("updateIsRecord", false);
 
         let socket = null;
         // 组件（当前界面）被加载时执行
         onMounted(() => {
+            store.commit("updateIsRecord", false);
             store.commit("updateOpponent", {
                 username: "waiting",
                 photo: "https://cdn.acwing.com/media/article/image/2022/08/09/1_1db2488f17-anonymous.png",
@@ -60,11 +62,11 @@ export default{
                     const[snake0, snake1] = game.snakes;
                     //console.log(snake0.status);
                     if(data.a_direction >= 0 && snake0.status !== "die"){ 
-                        console.log(data, snake0.status);
+                        //console.log(data, snake0.status);
                         snake0.set_direction(data.a_direction);
                     }
                     if(data.b_direction >= 0 && snake1.status !== "die"){
-                        console.log(data, snake1.status);
+                        //console.log(data, snake1.status);
                         snake1.set_direction(data.b_direction);
                     }
                 }else if(data.event === "result"){

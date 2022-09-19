@@ -1,15 +1,18 @@
 <template>
     <div class="playground">
+        <!-- <BeginBoard /> -->
         <GameMap />
     </div>
 </template>
 
 <script>
 import GameMap from "./GameMap"
+//import BeginBoard from "./BeginBoard"
 
 export default{
     components: {
         GameMap,
+        //BeginBoard,
     }
 }
 </script>

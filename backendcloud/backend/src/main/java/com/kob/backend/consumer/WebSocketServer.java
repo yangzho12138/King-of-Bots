@@ -35,9 +35,9 @@ public class WebSocketServer {
     private Session session = null; // session of websocket
 
     // non-singleton, cannot use Autowired directly (在同一时间不只有一个实例，多个连接--多个实例）
-    private static UserMapper userMapper;
+    public static UserMapper userMapper;
     public static RecordMapper recordMapper;
-    private static BotMapper botMapper;
+    public static BotMapper botMapper;
     public static RestTemplate restTemplate; // 在两个SpringBoot间进行通信
     private final static String addPlayerUrl = "http://127.0.0.1:3001/player/add/";
     private final static String removePlayerUrl = "http://127.0.0.1:3001/player/remove/";
